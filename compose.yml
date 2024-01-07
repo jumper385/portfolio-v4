@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  client:
+    build: client
+    ports:
+      - "3000:3000"
+    environment:
+      - NEO4J_PASSWORD=$NEO4J_PWD
+    depends_on:
+      - neo4j
+
+  client-dev:
+    build:
+      context: client
+      dockerfile: Dockerfile.dev
+    ports:
+      - "1133:5173"
+    volumes:
+      - ./client:/app
+    environment:
+      - NEO4J_PASSWORD=$NEO4J_PWD
+    depends_on:
+      - neo4j
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx:/etc/nginx/conf.d
+    depends_on:
+      - client
+
+  neo4j:
+    image: neo4j:latest
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_AUTH=neo4j/$NEO4J_PWD
+
+volumes:
+  media_data:
+
